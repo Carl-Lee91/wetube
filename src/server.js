@@ -1,15 +1,24 @@
 import express from "express";
+import morgan from "morgan";
 
 const PORT = 4000;
 
 const app = express();
+const logger = morgan("dev");
 
-app.get("/", (req, res) => {
-    return res.send("<h1>Hello world!</h1>");
-})
+const handleHome = (req, res) => {
+    return res.end("<h1>I am EndWare!</h1>");
+};
 
-app.get("/login", (req, res) => {
-    return res.send("Login here.");
-})
+const handleProtected = (req,res) => {
+    return res.send("Welcome to the private lounge")
+}
 
-app.listen(PORT, () => console.log(`Server listnening on port http://localhost:${PORT}`))
+app.use(logger);
+app.get("/", handleHome);
+app.get("/protected", handleProtected);
+
+const handleListening = () =>
+ console.log(`Server listnening on port http://localhost:${PORT}`);
+
+app.listen(PORT, handleListening);
