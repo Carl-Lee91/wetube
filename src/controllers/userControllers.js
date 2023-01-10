@@ -109,10 +109,56 @@ export const finishGithubLogin = async(req, res) => {
     }
 }
 
+///카카오 로그인 만들기
+export const startKakaoLogin = (req, res) => {
+    const baseUrl = `https://kauth.kakao.com/oauth/authorize`
+    const config = {
+        
+    }
+}
 
 export const logout = (req, res) => {
     req.session.destroy();
     return res.redirect("/");
 };
-export const edit = (req, res) => res.send("Edit User");
+
+export const getEdit = (req, res) => {
+    res.render("edit-profile", {pageTitle:"Edit Profile"})
+}
+
+export const postEdit = async (req, res) => {
+    const { session: {user:{_id}}, body :{name, email, username, location} } = req
+    const updatedUser = await User.findByIdAndUpdate(_id, {
+        name,
+        email,
+        username,
+        location,
+    }, {new:true})
+    ////중복된 자료들 안된다고 하는거 exist함수(join) 연계하여 하기(form의 정보가 session의 user정보와 같은지 확인 => body와 비교하면 됨 세션하고 ㅇㅇ)
+    req.session.user = updatedUser;
+    res.render("edit-profile")
+}
+
+export const getChangePassword = (req, res) => {
+    if(req.session.user.socialOnly === true) {
+        return res.redirect("/")
+    }
+    return res.render("users/change-password", {pageTitle:"Change Password"})
+}
+
+export const postChangePassword = async (req, res) => {
+    const { session: {user:{_id}}, body :{oldPassword, newPassword, newPasswordConfirmation} } = req
+    const user = await User.findById(_id)
+    const fine = await bcrypt.compare(oldPassword, user.password)
+    if(!fine){
+        return res.status(400).render("users/change-password", {pageTitle:"Change Password", errorMessage: "The current password is incorrect"})
+    }
+    if(newPassword !== newPasswordConfirmation){
+        return res.status(400).render("users/change-password", {pageTitle:"Change Password", errorMessage: "The password does not match the confirmation"})
+    }
+    user.password = newPassword
+    await user.save()
+    return res.redirect("/users/logout")
+}
+
 export const see = (req, res) => res.send("See");
