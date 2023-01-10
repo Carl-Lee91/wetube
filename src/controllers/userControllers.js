@@ -127,17 +127,21 @@ export const getEdit = (req, res) => {
 }
 
 export const postEdit = async (req, res) => {
-    const { session: {user:{_id}}, body :{name, email, username, location} } = req
-    const updatedUser = await User.findByIdAndUpdate(_id, {
+    const { session: {user:{_id}}, body :{name, email, username, location} } = req;    
+    try {
+        const updatedUser = await User.findByIdAndUpdate(_id, {
         name,
         email,
         username,
         location,
     }, {new:true})
-    ////중복된 자료들 안된다고 하는거 exist함수(join) 연계하여 하기(form의 정보가 session의 user정보와 같은지 확인 => body와 비교하면 됨 세션하고 ㅇㅇ)
     req.session.user = updatedUser;
     res.render("edit-profile")
-}
+    } catch (error) {
+        return res.status(400).render("edit-profile", {
+            pageTitle: "Edit Profile",
+            errorMessage: "This username or email is already taken.",
+          })}}
 
 export const getChangePassword = (req, res) => {
     if(req.session.user.socialOnly === true) {
