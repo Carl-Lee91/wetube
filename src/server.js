@@ -24,8 +24,9 @@ app.use(
 })
 );
 
-app.use(localsMiddleware);
+app.use(localsMiddleware); 
 app.use("/uploads", express.static("uploads"));
+app.use("/assets", express.static("assets"));
 app.use("/", rootrouter);
 app.use("/videos", videoRouter);
 app.use("/users", userRouter);
