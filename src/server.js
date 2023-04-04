@@ -6,6 +6,7 @@ import rootrouter from "./routers/rootrouter";
 import videoRouter from "./routers/videoRouters";
 import userRouter from "./routers/userRouters";
 import { localsMiddleware } from "./middlewares";
+import apiRouter from "./routers/apiRouter";
 
 const app = express();
 const logger = morgan("dev");
@@ -16,19 +17,20 @@ app.use(logger);
 app.use(express.urlencoded({ extended: true }));
 
 app.use(
-    session({
-        secret: process.env.COOKIE_SECRET,
-        resave: false,
-        saveUninitialized: false,
-        store: MongoStore.create({mongoUrl: process.env.DB_URL})
-})
+  session({
+    secret: process.env.COOKIE_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({ mongoUrl: process.env.DB_URL }),
+  })
 );
 
-app.use(localsMiddleware); 
+app.use(localsMiddleware);
 app.use("/uploads", express.static("uploads"));
 app.use("/assets", express.static("assets"));
 app.use("/", rootrouter);
 app.use("/videos", videoRouter);
 app.use("/users", userRouter);
+app.use("/api", apiRouter);
 
 export default app;
